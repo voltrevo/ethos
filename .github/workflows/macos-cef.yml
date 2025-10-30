@@ -29,6 +29,7 @@ jobs:
         with:
           path: third_party/cef
           key: cef-${{ env.CEF_SHA1 }}
+          max-age-days: 3
 
       - name: Fetch CEF (macOS arm64)
         run: |
@@ -46,6 +47,13 @@ jobs:
       - name: Patch cefsimple (hardcode URL)
         run: |
           bash scripts/patch_cefsimple.sh "$GITHUB_WORKSPACE"
+
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: third_party/cef/build
+          key: cef-build-${{ env.CEF_SHA1 }}-${{ hashFiles('patches/**', 'scripts/patch_cefsimple.sh') }}
+          max-age-days: 3
 
       - name: Configure CMake (Release, arm64)
         working-directory: third_party/cef
@@ -91,4 +99,5 @@ jobs:
           path: |
             third_party/cef/build/cefsimple/Release/cefsimple.app
             third_party/cef/build/tests/cefsimple/Release/cefsimple.app
+          retention-days: 3
           if-no-files-found: warn
