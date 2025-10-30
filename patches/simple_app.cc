@@ -1,28 +1,29 @@
-// simple_app.cc
-#include "include/cef_app.h"
+#include "tests/cefsimple/simple_app.h"
+#include "tests/cefsimple/simple_handler.h"
+
 #include "include/cef_browser.h"
-#include "include/views/cef_browser_view.h"
-#include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 
+// Views API:
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
+
 namespace {
+
 std::string GetStartURL() {
   const char* s = std::getenv("START_URL");
-  return s && *s ? std::string(s) : "https://example.com";
-}
+  return (s && *s) ? std::string(s) : "https://example.com";
 }
 
-class BrowserWindowDelegate : public CefWindowDelegate {
+class BareWindowDelegate : public CefWindowDelegate {
  public:
-  explicit BrowserWindowDelegate(CefRefPtr<CefBrowserView> view) : view_(view) {}
+  explicit BareWindowDelegate(CefRefPtr<CefBrowserView> view) : view_(view) {}
 
   void OnWindowCreated(CefRefPtr<CefWindow> window) override {
     window->AddChildView(view_);
-    window->CenterWindow(CefSize(1024, 700));   // pick a size
-    // “Plain top bar” (regular OS title bar, no menus/toolbars from us):
-    // nothing else needed.
+    window->CenterWindow(CefSize(1024, 700));
 
-    // If you want **frameless** instead, uncomment these on macOS:
+    // ---- Frameless (optional) ----
     // window->SetTitlebarHeight(0);
     // window->SetWindowButtonVisibility(false);
   }
@@ -33,16 +34,25 @@ class BrowserWindowDelegate : public CefWindowDelegate {
 
  private:
   CefRefPtr<CefBrowserView> view_;
-  IMPLEMENT_REFCOUNTING(BrowserWindowDelegate);
+  IMPLEMENT_REFCOUNTING(BareWindowDelegate);
 };
+
+}  // namespace
+
+SimpleApp::SimpleApp() {}
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();
 
   CefBrowserSettings browser_settings;
-  auto browser_view = CefBrowserView::CreateBrowserView(
-      this, GetStartURL(), browser_settings, /*client=*/nullptr,
-      /*request_context=*/nullptr, /*extra_info=*/nullptr);
 
-  CefWindow::CreateTopLevelWindow(new BrowserWindowDelegate(browser_view));
+  auto browser_view = CefBrowserView::CreateBrowserView(
+      /*client=*/new SimpleHandler(false),
+      /*url=*/GetStartURL(),
+      browser_settings,
+      /*request_context=*/nullptr,
+      /*extra_info=*/nullptr,
+      /*extension=*/nullptr);
+
+  CefWindow::CreateTopLevelWindow(new BareWindowDelegate(browser_view));
 }
