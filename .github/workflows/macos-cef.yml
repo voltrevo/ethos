@@ -76,11 +76,11 @@ jobs:
                 codesign -s - -f "$framework" 2>/dev/null || true
               done
               # Sign helper executables
-              find "$app_path/Contents/Frameworks" -type f -perm /111 | while read helper; do
+              find "$app_path/Contents/Frameworks" -type f -perm -111 | while read helper; do
                 codesign -s - -f "$helper" 2>/dev/null || true
               done
-              # Sign main app with entitlements
-              codesign -s - -f --deep --entitlements /dev/null "$app_path"
+              # Sign main app with ad-hoc signature
+              codesign -s - -f --deep "$app_path"
             fi
           done
 
