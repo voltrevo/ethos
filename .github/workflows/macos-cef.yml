@@ -65,34 +65,7 @@ jobs:
         working-directory: third_party/cef/build
         run: cmake --build . --target cefsimple
 
-      - name: Sign app (ad-hoc)
-        working-directory: third_party/cef/build
-        run: |
-          for app_path in tests/cefsimple/Release/cefsimple.app cefsimple/Release/cefsimple.app; do
-            if [[ -d "$app_path" ]]; then
-              echo "Signing: $app_path"
-              # Sign frameworks first
-              find "$app_path/Contents/Frameworks" -name "*.framework" -o -name "*.dylib" | while read framework; do
-                codesign -s - -f "$framework" 2>/dev/null || true
-              done
-              # Sign helper executables
-              find "$app_path/Contents/Frameworks" -type f -perm -111 | while read helper; do
-                codesign -s - -f "$helper" 2>/dev/null || true
-              done
-              # Sign main app with ad-hoc signature
-              codesign -s - -f --deep "$app_path"
-            fi
-          done
-
-      - name: Show app path
-        working-directory: third_party/cef/build
-        run: |
-          echo "Built app:"
-          pwd
-          ls -l tests/cefsimple/Release/cefsimple.app || true
-          ls -l cefsimple/Release/cefsimple.app || true
-
-      - name: Create DMG
+      - name: Compress app
         working-directory: third_party/cef/build
         run: |
           # Find the app bundle
@@ -108,19 +81,22 @@ jobs:
             exit 1
           fi
           
-          echo "Creating DMG from: $APP_PATH"
-          
-          # Create DMG directly from app
-          hdiutil create -volname "cefsimple" -srcfolder "$APP_PATH" -ov -format UDZO "cefsimple.dmg"
-          
-          # Show size
-          ls -lh cefsimple.dmg
+          echo "Compressing app: $APP_PATH"
+          tar -czf cefsimple.app.tar.gz "$APP_PATH"
+          ls -lh cefsimple.app.tar.gz
+
+      - name: Show app path
+        working-directory: third_party/cef/build
+        run: |
+          echo "Built app:"
+          pwd
+          ls -lh cefsimple.app.tar.gz
 
       - name: Upload app
         uses: actions/upload-artifact@v4
         with:
           name: cefsimple-macos
-          path: third_party/cef/build/cefsimple.dmg
+          path: third_party/cef/build/cefsimple.app.tar.gz
           retention-days: 3
           compression-level: 0
           if-no-files-found: warn
