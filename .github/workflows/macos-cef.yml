@@ -63,7 +63,7 @@ jobs:
 
       - name: Build ethos
         working-directory: third_party/cef/build
-        run: cmake --build . --target ethos
+        run: cmake --build . --target cefsimple
 
       - name: Compress app
         working-directory: third_party/cef/build
