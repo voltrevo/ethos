@@ -44,6 +44,16 @@ jobs:
         working-directory: third_party/cef/build
         run: cmake --build . --target cefsimple
 
+      - name: Sign app (ad-hoc)
+        working-directory: third_party/cef/build
+        run: |
+          for app_path in tests/cefsimple/Release/cefsimple.app cefsimple/Release/cefsimple.app; do
+            if [[ -d "$app_path" ]]; then
+              echo "Signing: $app_path"
+              codesign -s - -f --deep "$app_path"
+            fi
+          done
+
       - name: Show app path
         working-directory: third_party/cef/build
         run: |
