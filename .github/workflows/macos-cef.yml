@@ -122,4 +122,5 @@ jobs:
           name: cefsimple-macos
           path: third_party/cef/build/cefsimple.dmg
           retention-days: 3
+          compression-level: 0
           if-no-files-found: warn
