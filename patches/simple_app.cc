@@ -1,4 +1,4 @@
-// Patched cefsimple simple_app.cc
+// Patched ethos simple_app.cc
 // Hardcodes the startup URL via START_URL env var (default: https://example.com)
 
 #include "simple_app.h"
@@ -44,7 +44,7 @@ void SimpleApp::OnContextInitialized() {
 
   CefWindowInfo window_info;
 #if defined(OS_WIN)
-  window_info.SetAsPopup(NULL, "cefsimple");
+  window_info.SetAsPopup(NULL, "ethos");
 #endif
 
   const std::string url = GetStartURL();

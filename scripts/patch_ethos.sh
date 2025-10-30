@@ -16,7 +16,7 @@ if [[ ! -d "$CEFSIMPLE_DIR" ]]; then
   exit 1
 fi
 
-echo "Patching cefsimple..."
+echo "Patching ethos..."
 
 # Patch simple_app.h
 SRC_H="$REPO_ROOT/patches/simple_app.h"

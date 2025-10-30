@@ -44,15 +44,15 @@ jobs:
             mv cef_binary_* cef
           fi
 
-      - name: Patch cefsimple (hardcode URL)
+      - name: Patch ethos (hardcode URL)
         run: |
-          bash scripts/patch_cefsimple.sh "$GITHUB_WORKSPACE"
+          bash scripts/patch_ethos.sh "$GITHUB_WORKSPACE"
 
       - name: Cache build artifacts
         uses: actions/cache@v4
         with:
           path: third_party/cef/build
-          key: cef-build-${{ env.CEF_SHA1 }}-${{ hashFiles('patches/**', 'scripts/patch_cefsimple.sh') }}
+          key: cef-build-${{ env.CEF_SHA1 }}-${{ hashFiles('patches/**', 'scripts/patch_ethos.sh') }}
           max-age-days: 3
 
       - name: Configure CMake (Release, arm64)
@@ -61,7 +61,7 @@ jobs:
           mkdir -p build && cd build
           cmake -G Ninja -DPROJECT_ARCH=arm64 -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Build cefsimple
+      - name: Build ethos
         working-directory: third_party/cef/build
         run: cmake --build . --target cefsimple
 
@@ -77,26 +77,26 @@ jobs:
           fi
           
           if [[ -z "$APP_PATH" ]]; then
-            echo "Error: cefsimple.app not found"
+            echo "Error: ethos.app not found"
             exit 1
           fi
           
           echo "Compressing app: $APP_PATH"
-          tar -czf cefsimple.app.tar.gz "$APP_PATH"
-          ls -lh cefsimple.app.tar.gz
+          tar -czf ethos-arm64-release.tar.gz -C "$(dirname "$APP_PATH")" "$(basename "$APP_PATH")"
+          ls -lh ethos-arm64-release.tar.gz
 
       - name: Show app path
         working-directory: third_party/cef/build
         run: |
           echo "Built app:"
           pwd
-          ls -lh cefsimple.app.tar.gz
+          ls -lh ethos-arm64-release.tar.gz
 
       - name: Upload app
         uses: actions/upload-artifact@v4
         with:
-          name: cefsimple-macos
-          path: third_party/cef/build/cefsimple.app.tar.gz
+          name: ethos-macos-arm64-release
+          path: third_party/cef/build/ethos-arm64-release.tar.gz
           retention-days: 3
           compression-level: 0
           if-no-files-found: warn
