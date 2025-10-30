@@ -24,17 +24,17 @@ std::string GetStartURL() {
 
 SimpleApp::SimpleApp() {}
 
-void SimpleApp::OnRegisterCustomSchemes(CefRawPtr<CefSchemeRegistrar> registrar) {
+void SimpleApp::OnRegisterCustomSchemes(
+    CefRawPtr<CefSchemeRegistrar> registrar) {
   // No custom schemes.
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX) || defined(OS_MACOSX)
 void SimpleApp::OnBeforeCommandLineProcessing(
-    const CefString& process_type, CefRefPtr<CefCommandLine> command_line) {
+    const CefString& process_type,
+    CefRefPtr<CefCommandLine> command_line) {
   // Example tweak: disable GPU if desired.
   // command_line->AppendSwitch("disable-gpu");
 }
-#endif
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();
