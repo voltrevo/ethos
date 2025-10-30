@@ -1,0 +1,62 @@
+name: build-macos-cef
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  # 1) Set your hardcoded start URL here.
+  START_URL: "https://example.com"
+
+  # 2) Paste a valid macOS ARM64 **Standard Distribution** CEF URL here.
+  # Get one from: https://cef-builds.spotifycdn.com/index.html  (MacOS ARM64)
+  # Example (replace with a current build from the site):
+  CEF_DOWNLOAD: "https://cef-builds.spotifycdn.com/cef_binary_134.0.6998.44%2Bg3b7a2a7_macos_arm64.tar.bz2"
+
+jobs:
+  build-macos-arm64:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          brew install ninja cmake || true
+
+      - name: Fetch CEF (macOS arm64)
+        run: |
+          mkdir -p third_party && cd third_party
+          curl -L -o cef.tar.bz2 "$CEF_DOWNLOAD"
+          tar -xjf cef.tar.bz2
+          mv cef_binary_* cef
+
+      - name: Patch cefsimple (hardcode URL)
+        run: |
+          bash scripts/patch_cefsimple.sh "$GITHUB_WORKSPACE"
+
+      - name: Configure CMake (Release, arm64)
+        working-directory: third_party/cef
+        run: |
+          mkdir -p build && cd build
+          cmake -G Ninja -DPROJECT_ARCH=arm64 -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build cefsimple
+        working-directory: third_party/cef/build
+        run: cmake --build . --target cefsimple
+
+      - name: Show app path
+        working-directory: third_party/cef/build
+        run: |
+          echo "Built app:"
+          pwd
+          ls -l tests/cefsimple/Release/cefsimple.app || true
+          ls -l cefsimple/Release/cefsimple.app || true
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: cefsimple-macos
+          path: |
+            third_party/cef/build/cefsimple/Release/cefsimple.app
+            third_party/cef/build/tests/cefsimple/Release/cefsimple.app
+          if-no-files-found: warn
