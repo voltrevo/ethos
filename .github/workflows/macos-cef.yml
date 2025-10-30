@@ -10,7 +10,7 @@ env:
   # 2) Paste a valid macOS ARM64 **Standard Distribution** CEF URL here.
   # Get one from: https://cef-builds.spotifycdn.com/index.html  (MacOS ARM64)
   # Example (replace with a current build from the site):
-  CEF_DOWNLOAD: "https://cef-builds.spotifycdn.com/cef_binary_134.0.6998.44%2Bg3b7a2a7_macos_arm64.tar.bz2"
+  CEF_DOWNLOAD: "https://cef-builds.spotifycdn.com/cef_binary_141.0.11%2Bg7e73ac4%2Bchromium-141.0.7390.123_macosarm64.tar.bz2"
 
 jobs:
   build-macos-arm64:
