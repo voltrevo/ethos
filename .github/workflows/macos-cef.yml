@@ -11,6 +11,7 @@ env:
   # Get one from: https://cef-builds.spotifycdn.com/index.html  (MacOS ARM64)
   # Example (replace with a current build from the site):
   CEF_DOWNLOAD: "https://cef-builds.spotifycdn.com/cef_binary_141.0.11%2Bg7e73ac4%2Bchromium-141.0.7390.123_macosarm64.tar.bz2"
+  CEF_SHA1: "25191857fe1faf6862f395ffe593a84709ccf07d"
 
 jobs:
   build-macos-arm64:
@@ -23,12 +24,24 @@ jobs:
         run: |
           brew install ninja cmake || true
 
+      - name: Cache CEF download
+        uses: actions/cache@v4
+        with:
+          path: third_party/cef
+          key: cef-${{ env.CEF_SHA1 }}
+
       - name: Fetch CEF (macOS arm64)
         run: |
-          mkdir -p third_party && cd third_party
-          curl -L -o cef.tar.bz2 "$CEF_DOWNLOAD"
-          tar -xjf cef.tar.bz2
-          mv cef_binary_* cef
+          if [[ -d third_party/cef ]]; then
+            echo "CEF cache hit, skipping download"
+          else
+            mkdir -p third_party && cd third_party
+            curl -L -o cef.tar.bz2 "$CEF_DOWNLOAD"
+            # Verify SHA1
+            echo "$CEF_SHA1  cef.tar.bz2" | shasum -c -
+            tar -xjf cef.tar.bz2
+            mv cef_binary_* cef
+          fi
 
       - name: Patch cefsimple (hardcode URL)
         run: |
