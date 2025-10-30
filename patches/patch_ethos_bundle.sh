@@ -14,12 +14,13 @@ if [[ -f "$CEFSIMPLE_DIR/CMakeLists.txt" ]]; then
   patch "$CEFSIMPLE_DIR/CMakeLists.txt" "$REPO_ROOT/patches/CMakeLists.txt.patch"
 fi
 
-# Patch Info.plist
-if [[ -f "$CEFSIMPLE_DIR/Info.plist" ]]; then
-  if [[ ! -f "$CEFSIMPLE_DIR/Info.plist.orig" ]]; then
-    cp "$CEFSIMPLE_DIR/Info.plist" "$CEFSIMPLE_DIR/Info.plist.orig"
+
+# Patch mac/Info.plist.in
+if [[ -f "$CEFSIMPLE_DIR/mac/Info.plist.in" ]]; then
+  if [[ ! -f "$CEFSIMPLE_DIR/mac/Info.plist.in.orig" ]]; then
+    cp "$CEFSIMPLE_DIR/mac/Info.plist.in" "$CEFSIMPLE_DIR/mac/Info.plist.in.orig"
   fi
-  patch "$CEFSIMPLE_DIR/Info.plist" "$REPO_ROOT/patches/Info.plist.patch"
+  patch "$CEFSIMPLE_DIR/mac/Info.plist.in" "$REPO_ROOT/patches/Info.plist.in.patch"
 fi
 
 echo "Patched CMakeLists.txt and Info.plist for ethos app bundle."

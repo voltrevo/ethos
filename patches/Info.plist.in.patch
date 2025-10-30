@@ -1,0 +1,11 @@
+--- Info.plist.in.orig	2025-10-30 00:00:00.000000000 +0000
++++ Info.plist.in	2025-10-30 00:00:00.000000000 +0000
+@@
+-\t<string>cefsimple.icns</string>
++\t<string>ethos.icns</string>
+@@
+-\t<string>org.cef.cefsimple</string>
++\t<string>org.ethos.app</string>
+@@
+-\t<string>${PRODUCT_NAME}</string>
++\t<string>ethos</string>
