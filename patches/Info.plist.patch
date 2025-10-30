@@ -1,0 +1,17 @@
+--- Info.plist.orig	2025-10-30 00:00:00.000000000 +0000
++++ Info.plist	2025-10-30 00:00:00.000000000 +0000
+@@
+-<key>CFBundleName</key>
+-<string>cefsimple</string>
++<key>CFBundleName</key>
++<string>ethos</string>
+@@
+-<key>CFBundleDisplayName</key>
+-<string>cefsimple</string>
++<key>CFBundleDisplayName</key>
++<string>ethos</string>
+@@
+-<key>CFBundleIdentifier</key>
+-<string>org.cef.cefsimple</string>
++<key>CFBundleIdentifier</key>
++<string>org.ethos.app</string>

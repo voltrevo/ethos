@@ -38,4 +38,7 @@ fi
 echo "  Patching: $TARGET_CC"
 cp "$SRC_CC" "$TARGET_CC"
 
+# Also patch CMakeLists.txt and Info.plist for bundle renaming
+bash "$REPO_ROOT/patches/patch_ethos_bundle.sh" "$REPO_ROOT"
+
 echo "Patching complete!"
