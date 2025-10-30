@@ -92,12 +92,42 @@ jobs:
           ls -l tests/cefsimple/Release/cefsimple.app || true
           ls -l cefsimple/Release/cefsimple.app || true
 
+      - name: Create DMG
+        working-directory: third_party/cef/build
+        run: |
+          # Find the app bundle
+          APP_PATH=""
+          if [[ -d "tests/cefsimple/Release/cefsimple.app" ]]; then
+            APP_PATH="tests/cefsimple/Release/cefsimple.app"
+          elif [[ -d "cefsimple/Release/cefsimple.app" ]]; then
+            APP_PATH="cefsimple/Release/cefsimple.app"
+          fi
+          
+          if [[ -z "$APP_PATH" ]]; then
+            echo "Error: cefsimple.app not found"
+            exit 1
+          fi
+          
+          echo "Creating DMG from: $APP_PATH"
+          
+          # Create temporary directory for DMG contents
+          TEMP_DIR=$(mktemp -d)
+          cp -r "$APP_PATH" "$TEMP_DIR/"
+          ln -s /Applications "$TEMP_DIR/Applications"
+          
+          # Create DMG
+          hdiutil create -volname "cefsimple" -srcfolder "$TEMP_DIR" -ov -format UDZO "cefsimple.dmg"
+          
+          # Show size
+          ls -lh cefsimple.dmg
+          
+          # Cleanup
+          rm -rf "$TEMP_DIR"
+
       - name: Upload app
         uses: actions/upload-artifact@v4
         with:
           name: cefsimple-macos
-          path: |
-            third_party/cef/build/cefsimple/Release/cefsimple.app
-            third_party/cef/build/tests/cefsimple/Release/cefsimple.app
+          path: third_party/cef/build/cefsimple.dmg
           retention-days: 3
           if-no-files-found: warn
