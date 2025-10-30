@@ -1,54 +1,48 @@
-// Patched ethos simple_app.cc
-// Hardcodes the startup URL via START_URL env var (default: https://example.com)
-
-#include "simple_app.h"
-#include "simple_handler.h"
-
+// simple_app.cc
 #include "include/cef_app.h"
 #include "include/cef_browser.h"
-#include "include/cef_command_line.h"
-#include "include/cef_scheme.h"
+#include "include/views/cef_browser_view.h"
+#include "include/views/cef_window.h"
 #include "include/wrapper/cef_helpers.h"
 
-#include <cstdlib>
-
 namespace {
-
 std::string GetStartURL() {
-  const char* env = std::getenv("START_URL");
-  if (env && *env) return std::string(env);
-  return "https://example.com";
+  const char* s = std::getenv("START_URL");
+  return s && *s ? std::string(s) : "https://example.com";
+}
 }
 
-}  // namespace
+class BrowserWindowDelegate : public CefWindowDelegate {
+ public:
+  explicit BrowserWindowDelegate(CefRefPtr<CefBrowserView> view) : view_(view) {}
 
-SimpleApp::SimpleApp() {}
+  void OnWindowCreated(CefRefPtr<CefWindow> window) override {
+    window->AddChildView(view_);
+    window->CenterWindow(CefSize(1024, 700));   // pick a size
+    // “Plain top bar” (regular OS title bar, no menus/toolbars from us):
+    // nothing else needed.
 
-void SimpleApp::OnRegisterCustomSchemes(
-    CefRawPtr<CefSchemeRegistrar> registrar) {
-  // No custom schemes.
-}
+    // If you want **frameless** instead, uncomment these on macOS:
+    // window->SetTitlebarHeight(0);
+    // window->SetWindowButtonVisibility(false);
+  }
 
-void SimpleApp::OnBeforeCommandLineProcessing(
-    const CefString& process_type,
-    CefRefPtr<CefCommandLine> command_line) {
-  // Example tweak: disable GPU if desired.
-  // command_line->AppendSwitch("disable-gpu");
-}
+  bool CanClose(CefRefPtr<CefWindow> window) override {
+    return view_->GetBrowser()->GetHost()->TryCloseBrowser();
+  }
+
+ private:
+  CefRefPtr<CefBrowserView> view_;
+  IMPLEMENT_REFCOUNTING(BrowserWindowDelegate);
+};
 
 void SimpleApp::OnContextInitialized() {
   CEF_REQUIRE_UI_THREAD();
 
-  CefRefPtr<SimpleHandler> handler(new SimpleHandler(false));
   CefBrowserSettings browser_settings;
+  auto browser_view = CefBrowserView::CreateBrowserView(
+      this, GetStartURL(), browser_settings, /*client=*/nullptr,
+      /*request_context=*/nullptr, /*extra_info=*/nullptr);
 
-  CefWindowInfo window_info;
-#if defined(OS_WIN)
-  window_info.SetAsPopup(NULL, "ethos");
-#endif
-
-  const std::string url = GetStartURL();
-
-  CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
-                                nullptr, nullptr);
+  CefWindow::CreateTopLevelWindow(new BrowserWindowDelegate(browser_view));
 }
